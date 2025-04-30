@@ -8,6 +8,8 @@
             right: 20px;
             word-wrap: break-word;
             border: 1px solid #000 !important;
+            height: 100px;
+            width: 100px;
         }
         
         #containerChat {

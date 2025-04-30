@@ -35,6 +35,11 @@ function sendAdminMessage() {
     if (selectedClient) {
         socket.emit("admin_to_client", { sid: selectedClient, message: msg });
         document.getElementById("adminMessage").value = '';
+
+        // hacemos el componente
+        const li = document.createElement("li");
+        li.textContent = `[FROM ADMIN TO : ${selectedClient} ]: ${msg}`;
+        document.getElementById("chatLog").appendChild(li);
     } else {
         alert("Selecciona un cliente.");
     }

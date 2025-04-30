@@ -21,7 +21,7 @@ def admin_view():
 def handle_connect():
     sid = request.sid
     clients[sid] = {
-        "username": f"user_{sid[:5]}",
+        "username": f"user_{sid}",
         "role": "client",  # por defecto
         "room": sid
     }

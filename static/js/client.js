@@ -15,7 +15,13 @@ socket.on('client_receive', msg => {
 });
 
 function sendClientMessage() {
+    
     const msg = document.getElementById("clientMessage").value;
+    if (msg === '') {
+        alert("Please enter a message.");
+        return;
+    }
+
     socket.emit("client_to_admin", { message: msg });
     document.getElementById("clientMessage").value = '';
     makeListItem(msg , 'from-admin');

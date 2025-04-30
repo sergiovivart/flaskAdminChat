@@ -44,3 +44,28 @@ function sendAdminMessage() {
         alert("Selecciona un cliente.");
     }
 }
+
+// para los chat guardados y demas 
+function selectClient(client) {
+    selectedClient = client.sid;
+    document.getElementById("selectedClientSocketId").textContent = selectedClient;
+
+    // Limpiar historial actual
+    document.getElementById("chatLog").innerHTML = "";
+
+    // Solicitar historial al backend
+    socket.emit("request_chat_history", { sid: selectedClient });
+}
+
+// Mostrar historial recibido
+socket.on("chat_history", data => {
+    const log = document.getElementById("chatLog");
+    log.innerHTML = "";
+    data.history.forEach(entry => {
+        const li = document.createElement("li");
+        li.textContent = `${entry.from === "admin" ? "Tú" : "Cliente"}: ${entry.message}`;
+        li.classList.add("list-group-item");
+        log.appendChild(li);
+    });
+});
+

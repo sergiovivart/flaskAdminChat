@@ -1,74 +1,73 @@
 from flask import Flask, render_template, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
-clients = {}  # { sid: { "username": ..., "role": ..., "room": ... } }
+clients = {}
+admin_connections = set()
+chat_history = {}  # Clave: sid del cliente, valor: lista de mensajes
 
-# Rutas HTML
-@app.route('/client')
-def client_view():
-    return render_template('client.html')
+@app.route("/")
+def client():
+    return render_template("client.html")
 
-@app.route('/admin')
-def admin_view():
-    return render_template('admin.html')
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
 
-# Cuando un cliente/admin se conecta
-@socketio.on('connect')
-def handle_connect():
-    sid = request.sid
-    clients[sid] = {
-        "username": f"user_{sid}",
-        "role": "client",  # por defecto
-        "room": sid
-    }
-    print(f"Conectado: {sid}")
+@socketio.on("connect")
+def on_connect():
+    print(f"Conectado: {request.sid}")
 
-# Establecer el rol (lo emite el frontend al iniciar)
-@socketio.on('set_role')
+@socketio.on("set_role")
 def handle_set_role(role):
+    if role == "admin":
+        admin_connections.add(request.sid)
+        emit("client_list", [{"sid": sid, "username": data["username"]} for sid, data in clients.items()], room=request.sid)
+    else:
+        username = f"Cliente {len(clients)+1}"
+        clients[request.sid] = {"username": username}
+        for admin_sid in admin_connections:
+            emit("client_list", [{"sid": sid, "username": data["username"]} for sid, data in clients.items()], room=admin_sid)
+
+@socketio.on("client_to_admin")
+def handle_client_message(data):
     sid = request.sid
-    if sid in clients:
-        clients[sid]['role'] = role
-        print(f"{sid} es ahora {role}")
-        emit('client_list', get_client_list(), broadcast=True)
+    message = data["message"]
+    print(f"Cliente {sid} dice: {message}")
 
-# Devuelve lista de clientes conectados (solo clientes normales)
-def get_client_list():
-    return [
-        {"sid": sid, "username": data["username"]}
-        for sid, data in clients.items()
-        if data['role'] == 'client'
-    ]
+    # Guardar historial
+    chat_history.setdefault(sid, []).append({"from": "client", "message": message})
 
-# Mensaje desde cliente al admin
-@socketio.on('client_to_admin')
-def handle_client_to_admin(data):
-    sid = request.sid
-    msg = data['message']
-    print(f"[Cliente {sid}] => Admin: {msg}")
-    emit('admin_receive', {"sid": sid, "message": msg}, broadcast=True)
+    # Reenviar al admin
+    for admin_sid in admin_connections:
+        emit("admin_receive", {"sid": sid, "message": message}, room=admin_sid)
 
-# Mensaje del admin a un cliente específico
-@socketio.on('admin_to_client')
-def handle_admin_to_client(data):
-    target_sid = data['sid']
-    msg = data['message']
-    print(f"[Admin] => Cliente {target_sid}: {msg}")
-    emit('client_receive', msg, room=target_sid)
+@socketio.on("admin_to_client")
+def handle_admin_message(data):
+    sid = data["sid"]
+    message = data["message"]
+    print(f"Admin responde a {sid}: {message}")
 
-# Desconexión de cualquier usuario
-@socketio.on('disconnect')
-def handle_disconnect():
-    sid = request.sid
-    if sid in clients:
-        print(f"Desconectado: {sid}")
-        del clients[sid]
-        emit('client_list', get_client_list(), broadcast=True)
+    # Guardar historial
+    chat_history.setdefault(sid, []).append({"from": "admin", "message": message})
 
-# Iniciar servidor
-if __name__ == '__main__':
+    emit("client_receive", {"message": message}, room=sid)
+
+@socketio.on("request_chat_history")
+def handle_chat_history_request(data):
+    sid = data["sid"]
+    history = chat_history.get(sid, [])
+    emit("chat_history", {"sid": sid, "history": history}, room=request.sid)
+
+@socketio.on("disconnect")
+def on_disconnect():
+    print(f"Desconectado: {request.sid}")
+    clients.pop(request.sid, None)
+    admin_connections.discard(request.sid)
+    for admin_sid in admin_connections:
+        emit("client_list", [{"sid": sid, "username": data["username"]} for sid, data in clients.items()], room=admin_sid)
+
+if __name__ == "__main__":
     socketio.run(app, debug=True)

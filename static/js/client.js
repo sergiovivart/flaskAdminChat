@@ -10,7 +10,8 @@ function makeListItem(msg , nombreClases) {
 }   
 
 socket.on('client_receive', msg => {
-    makeListItem(`[ADMIN]: ${msg}` , 'recivido');
+    console.log(msg);
+    makeListItem(`[ADMIN]: ${msg.message}` , 'recivido');
 });
 
 function sendClientMessage() {

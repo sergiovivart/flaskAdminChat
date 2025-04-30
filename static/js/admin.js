@@ -8,26 +8,64 @@ socket.on('connect', () => {
     document.getElementById("adminSocketId").textContent = socket.id;
 });
 
-socket.on('admin_receive', data => {
-    const li = document.createElement("li");
-    li.textContent = `[${data.sid}]: ${data.message}`;
-    document.getElementById("chatLog").appendChild(li);
+socket.on("admin_receive", data => {
+    const { sid, message } = data;
+
+    if (selectedClient === sid) {
+        const li = document.createElement("li");
+        li.classList.add("message-bubble", "from-client");
+        li.textContent = message;
+        document.getElementById("chatLog").appendChild(li);
+    } else {
+        // Solo mostrar badge si el cliente NO está seleccionado
+        const clientItem = document.getElementById(`client-${sid}`);
+        if (clientItem && !clientItem.querySelector(".badge")) {
+            const badge = document.createElement("span");
+            badge.className = "badge bg-danger ms-2";
+            badge.textContent = "Nuevo mensaje";
+            clientItem.appendChild(badge);
+        }
+    }
 });
 
-socket.on('client_list', clients => {
+socket.on("client_list", (clients) => {
     const list = document.getElementById("clientList");
-    list.innerHTML = '';
+    list.innerHTML = "";
+
     clients.forEach(client => {
         const li = document.createElement("li");
+        li.id = `client-${client.sid}`;
+        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center", "cursor-pointer");
         li.textContent = client.username;
-        li.onclick = () => selectClient(client);
+
+        li.onclick = () => {
+            selectClient(client);
+
+            // Eliminar la etiqueta de nuevo mensaje si la tenía
+            const badge = li.querySelector(".badge");
+            if (badge) {
+                badge.remove();
+            }
+        };
         list.appendChild(li);
     });
 });
 
+
 function selectClient(client) {
     selectedClient = client.sid;
     document.getElementById("selectedClientSocketId").textContent = selectedClient;
+
+    // Eliminar etiqueta de nuevo mensaje si existe
+    const li = document.getElementById(`client-${selectedClient}`);
+    const badge = li.querySelector(".badge");
+    if (badge) badge.remove();
+
+    // Limpiar chat anterior
+    document.getElementById("chatLog").innerHTML = "";
+
+    // Solicitar historial del nuevo cliente
+    socket.emit("request_chat_history", { sid: selectedClient });
 }
 
 function sendAdminMessage() {
@@ -38,7 +76,8 @@ function sendAdminMessage() {
 
         // hacemos el componente
         const li = document.createElement("li");
-        li.textContent = `[FROM ADMIN TO : ${selectedClient} ]: ${msg}`;
+        li.textContent = `Tu: ${msg}`;
+        li.classList.add("message-bubble", "from-admin");
         document.getElementById("chatLog").appendChild(li);
     } else {
         alert("Selecciona un cliente.");
@@ -57,15 +96,25 @@ function selectClient(client) {
     socket.emit("request_chat_history", { sid: selectedClient });
 }
 
-// Mostrar historial recibido
+// ver el historial del cht
 socket.on("chat_history", data => {
     const log = document.getElementById("chatLog");
     log.innerHTML = "";
+
     data.history.forEach(entry => {
         const li = document.createElement("li");
-        li.textContent = `${entry.from === "admin" ? "Tú" : "Cliente"}: ${entry.message}`;
-        li.classList.add("list-group-item");
+        li.textContent = entry.message;
+
+        li.classList.add("message-bubble");
+        if (entry.from === "admin") {
+            li.classList.add("from-admin");
+        } else {
+            li.classList.add("from-client");
+        }
         log.appendChild(li);
     });
+
+    // Scroll al final automáticamente
+    log.scrollTop = log.scrollHeight;
 });
 

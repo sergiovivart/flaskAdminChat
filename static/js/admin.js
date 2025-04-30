@@ -104,7 +104,6 @@ socket.on("chat_history", data => {
     data.history.forEach(entry => {
         const li = document.createElement("li");
         li.textContent = entry.message;
-
         li.classList.add("message-bubble");
         if (entry.from === "admin") {
             li.classList.add("from-admin");

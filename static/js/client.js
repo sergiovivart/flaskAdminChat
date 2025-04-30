@@ -5,18 +5,18 @@ socket.emit("set_role", "client");
 function makeListItem(msg , nombreClases) {
     const li = document.createElement("li");
     li.textContent = msg;
+    li.classList.add('message-bubble');
     li.classList.add(nombreClases);
     document.getElementById("chatLog").appendChild(li);
 }   
 
 socket.on('client_receive', msg => {
-    console.log(msg);
-    makeListItem(`[ADMIN]: ${msg.message}` , 'recivido');
+    makeListItem(`Admin: ${msg.message}` , 'from-client');
 });
 
 function sendClientMessage() {
     const msg = document.getElementById("clientMessage").value;
     socket.emit("client_to_admin", { message: msg });
     document.getElementById("clientMessage").value = '';
-    makeListItem(`[YO]: ${msg}` , 'enviado');
+    makeListItem(`Tu: ${msg}` , 'from-admin');
 }

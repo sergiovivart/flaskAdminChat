@@ -1,21 +1,44 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
+app.secret_key = 'esto_es_mi_clave_super_secreta_123'
 socketio = SocketIO(app)
 
 clients = {}
 admin_connections = set()
 chat_history = {}  # Clave: sid del cliente, valor: lista de mensajes
 
+
+#  las vistas normales
 @app.route("/")
 def client():
     return render_template("client.html")
 
 @app.route("/admin")
 def admin():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("login"))
     return render_template("admin.html")
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        if request.form["username"] == 'admin' and request.form["password"] == 'admin':
+            session["admin_logged_in"] = True
+            return redirect(url_for("admin"))
+        else:
+            return render_template("login.html", error="Credenciales inválidas")
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.pop("admin_logged_in", None)
+    return redirect(url_for("login"))
+
+
+
+# los eventos del socketio se ejecutan en el servidor
 @socketio.on("connect")
 def on_connect():
     print(f"Conectado: {request.sid}")

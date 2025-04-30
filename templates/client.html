@@ -28,12 +28,18 @@
     </div>
   </main>
 
+  <div id="chatSing" onclick="showChat()" class="d-flex justify-content-center align-items-center flex-column bg-primary text-white py-3" style="cursor: pointer;">
+     <span>chat</span>
+  </div>
+
+
   <!-- contenedor con el chat -->
   <div id="containerChat" class="card shadow-sm">
     <div class="card-header bg-primary text-white">
         <!-- <h5>Chat con el Administrador</h5> -->
           <div class="mb-3">
             <span id="admin-status">Cargando...</span>
+            <button onclick="closeChat()" class="btn btn-primary button">X</button>
           </div>
     </div>
     <div class="card-body">
@@ -42,7 +48,7 @@
         </ul>
     </div>
     <div class="card-footer">
-        <textarea id="clientMessage" class="form-control" placeholder="Escribe tu mensaje..." rows="3"></textarea>
+        <textarea id="clientMessage" class="form-control" placeholder="Escribe tu mensaje..." rows="1"></textarea>
         <button onclick="sendClientMessage()" class="btn btn-primary mt-2 w-100">Enviar</button>
     </div>
 </div>

@@ -20,7 +20,7 @@ socket.on("admin_status", (data) => {
         statusElem.innerText = "Administrador disponible";
         // statusElem.className = "text-success fw-bold";
     } else {
-        statusElem.innerText = "Administrador no disponible";
+        statusElem.innerText = "No disponible";
         // statusElem.className = "text-danger fw-bold";
     }
 });
@@ -36,4 +36,12 @@ function sendClientMessage() {
     socket.emit("client_to_admin", { message: msg });
     document.getElementById("clientMessage").value = '';
     makeListItem(msg , 'from-admin');
+}
+
+function showChat() {
+    document.getElementById('containerChat').style.display = 'block';
+}
+
+function closeChat() {
+    document.getElementById('containerChat').style.display = 'none';
 }

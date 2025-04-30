@@ -27,6 +27,7 @@ def handle_set_role(role):
     if role == "admin":
         admin_connections.add(request.sid)
         emit("client_list", [{"sid": sid, "username": data["username"]} for sid, data in clients.items()], room=request.sid)
+        emit_admin_status()
     else:
         username = f"Cliente {len(clients)+1}"
         clients[request.sid] = {"username": username}
@@ -71,9 +72,19 @@ def handle_chat_history_request(data):
 def on_disconnect():
     print(f"Desconectado: {request.sid}")
     clients.pop(request.sid, None)
+    was_admin = request.sid in admin_connections
     admin_connections.discard(request.sid)
     for admin_sid in admin_connections:
         emit("client_list", [{"sid": sid, "usesrname": data["username"]} for sid, data in clients.items()], room=admin_sid)
+    if was_admin:
+        emit_admin_status()
+
+
+# definimos funciones
+def emit_admin_status():
+    status = len(admin_connections) > 0
+    for sid in clients:
+        emit("admin_status", {"connected": status}, room=sid)
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)

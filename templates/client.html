@@ -10,22 +10,45 @@
 
 </head>
 <body class="bg-light">
-    
-  
-    <div id="containerChat" class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h5>Chat con el Administrador</h5>
-        </div>
-        <div class="card-body">
-            <ul id="chatLog" class="list-unstyled">
-                <!-- Aquí se mostrarán los mensajes -->
-            </ul>
-        </div>
-        <div class="card-footer">
-            <textarea id="clientMessage" class="form-control" placeholder="Escribe tu mensaje..." rows="3"></textarea>
-            <button onclick="sendClientMessage()" class="btn btn-primary mt-2 w-100">Enviar</button>
-        </div>
+
+
+     <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="#">Mi App</a>
     </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="flex-fill">
+    <div class="container py-4">
+         <p class="text-center">Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
+            Sunt, dignissimos ipsum? Ipsam dignissimos vitae vero nulla porro reiciendis deleniti 
+            libero illo. Repudiandae corrupti alias, exercitationem rem voluptas consequuntur ipsum! Alias?</p>
+    </div>
+  </main>
+
+  <!-- contenedor con el chat -->
+  <div id="containerChat" class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5>Chat con el Administrador</h5>
+    </div>
+    <div class="card-body">
+        <ul id="chatLog" class="list-unstyled">
+            <!-- Aquí se mostrarán los mensajes -->
+        </ul>
+    </div>
+    <div class="card-footer">
+        <textarea id="clientMessage" class="form-control" placeholder="Escribe tu mensaje..." rows="3"></textarea>
+        <button onclick="sendClientMessage()" class="btn btn-primary mt-2 w-100">Enviar</button>
+    </div>
+</div>
+
+  <!-- Footer -->
+  <footer class="bg-light text-center text-muted py-3 mt-auto">
+    <small>&copy; 2025 Mi App. Todos los derechos reservados.</small>
+  </footer>
+    
   
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

@@ -36,7 +36,8 @@ socket.on("client_list", (clients) => {
         const li = document.createElement("li");
         li.id = `client-${client.sid}`;
         li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center", "cursor-pointer");
-        li.textContent = client.username;
+        // li.textContent = client.username;
+        li.textContent = client.sid;
 
         li.onclick = () => {
             selectClient(client);
@@ -50,6 +51,28 @@ socket.on("client_list", (clients) => {
         list.appendChild(li);
     });
 });
+
+// ver el historial del cht
+socket.on("chat_history", data => {
+    const log = document.getElementById("chatLog");
+    log.innerHTML = "";
+
+    data.history.forEach(entry => {
+        const li = document.createElement("li");
+        li.textContent = entry.message;
+        li.classList.add("message-bubble");
+        if (entry.from === "admin") {
+            li.classList.add("from-admin");
+        } else {
+            li.classList.add("from-client");
+        }
+        log.appendChild(li);
+    });
+
+    // Scroll al final automáticamente
+    log.scrollTop = log.scrollHeight;
+});
+
 
 
 function selectClient(client) {
@@ -96,24 +119,4 @@ function selectClient(client) {
     socket.emit("request_chat_history", { sid: selectedClient });
 }
 
-// ver el historial del cht
-socket.on("chat_history", data => {
-    const log = document.getElementById("chatLog");
-    log.innerHTML = "";
-
-    data.history.forEach(entry => {
-        const li = document.createElement("li");
-        li.textContent = entry.message;
-        li.classList.add("message-bubble");
-        if (entry.from === "admin") {
-            li.classList.add("from-admin");
-        } else {
-            li.classList.add("from-client");
-        }
-        log.appendChild(li);
-    });
-
-    // Scroll al final automáticamente
-    log.scrollTop = log.scrollHeight;
-});
 

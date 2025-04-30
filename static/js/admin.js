@@ -8,6 +8,8 @@ socket.on('connect', () => {
     document.getElementById("adminSocketId").textContent = socket.id;
 });
 
+
+// los eventos de los mensajes
 socket.on("admin_receive", data => {
     const { sid, message } = data;
 
@@ -75,6 +77,7 @@ socket.on("chat_history", data => {
 
 
 
+// las funciones para el chat
 function selectClient(client) {
     selectedClient = client.sid;
     document.getElementById("selectedClientSocketId").textContent = selectedClient;
@@ -93,17 +96,16 @@ function selectClient(client) {
 
 function sendAdminMessage() {
     const msg = document.getElementById("adminMessage").value;
-    if (selectedClient) {
+    if (selectedClient && msg !== "") {
         socket.emit("admin_to_client", { sid: selectedClient, message: msg });
         document.getElementById("adminMessage").value = '';
-
         // hacemos el componente
         const li = document.createElement("li");
-        li.textContent = `Tu: ${msg}`;
+        li.textContent = msg;
         li.classList.add("message-bubble", "from-admin");
         document.getElementById("chatLog").appendChild(li);
     } else {
-        alert("Selecciona un cliente.");
+        alert("Selecciona un cliente y escribe un mensaje.");
     }
 }
 
@@ -111,10 +113,8 @@ function sendAdminMessage() {
 function selectClient(client) {
     selectedClient = client.sid;
     document.getElementById("selectedClientSocketId").textContent = selectedClient;
-
     // Limpiar historial actual
     document.getElementById("chatLog").innerHTML = "";
-
     // Solicitar historial al backend
     socket.emit("request_chat_history", { sid: selectedClient });
 }

@@ -9,6 +9,18 @@
 <body class="bg-light">
 
     <style>
+
+
+        #chatLog
+        {
+        max-height: 300px;
+        height: 400px;
+        overflow-y: auto;   
+        overflow-x: auto;
+        background-color: #fff;
+        padding: 1rem;
+        }
+
         .message-bubble {
         max-width: 70%;
         padding: 10px 15px;
@@ -42,6 +54,17 @@
 
     <div class="container py-5">
         <div class="row justify-content-center">
+
+            <div class="col-md-4">
+
+                <h5>Clientes conectados:</h5>
+                <ul id="clientList" class="list-group mb-4">
+                    <!-- Lista de clientes -->
+                </ul>
+                
+            </div>
+            <!-- fin de la columna  -->
+
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
@@ -49,11 +72,6 @@
                         <p>Conectado como: <strong><span id="adminSocketId">...</span></strong></p>
                     </div>
                     <div class="card-body">
-                        <h5>Clientes conectados:</h5>
-                        <ul id="clientList" class="list-group mb-4">
-                            <!-- Lista de clientes -->
-                        </ul>
-                        <!-- <h5>Chat:</h5> -->
                         <p> Conectado con : <span id="selectedClientSocketId"></span></p>
                         <h5>Chat Log</h5>
                         <ul id="chatLog" class="list-unstyled">
@@ -66,6 +84,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- fin de l colmuna  -->
         </div>
     </div>
 

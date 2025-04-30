@@ -20,6 +20,7 @@ def admin():
 def on_connect():
     print(f"Conectado: {request.sid}")
 
+# orgnaizamos los roles
 @socketio.on("set_role")
 def handle_set_role(role):
     if role == "admin":
@@ -31,6 +32,7 @@ def handle_set_role(role):
         for admin_sid in admin_connections:
             emit("client_list", [{"sid": sid, "username": data["username"]} for sid, data in clients.items()], room=admin_sid)
 
+# envia el mensaje al admin
 @socketio.on("client_to_admin")
 def handle_client_message(data):
     sid = request.sid
@@ -44,6 +46,7 @@ def handle_client_message(data):
     for admin_sid in admin_connections:
         emit("admin_receive", {"sid": sid, "message": message}, room=admin_sid)
 
+#envia el mensaje al cliente
 @socketio.on("admin_to_client")
 def handle_admin_message(data):
     sid = data["sid"]
@@ -55,12 +58,14 @@ def handle_admin_message(data):
 
     emit("client_receive", {"message": message}, room=sid)
 
+#pide el historial de mensajes
 @socketio.on("request_chat_history")
 def handle_chat_history_request(data):
     sid = data["sid"]
     history = chat_history.get(sid, [])
     emit("chat_history", {"sid": sid, "history": history}, room=request.sid)
 
+# en desconexión se elimina el cliente de la lista
 @socketio.on("disconnect")
 def on_disconnect():
     print(f"Desconectado: {request.sid}")

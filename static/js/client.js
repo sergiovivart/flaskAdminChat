@@ -11,12 +11,12 @@ function makeListItem(msg , nombreClases) {
 }   
 
 socket.on('client_receive', msg => {
-    makeListItem(`Admin: ${msg.message}` , 'from-client');
+    makeListItem(msg.message , 'from-client');
 });
 
 function sendClientMessage() {
     const msg = document.getElementById("clientMessage").value;
     socket.emit("client_to_admin", { message: msg });
     document.getElementById("clientMessage").value = '';
-    makeListItem(`Tu: ${msg}` , 'from-admin');
+    makeListItem(msg , 'from-admin');
 }
